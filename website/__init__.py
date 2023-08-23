@@ -1,26 +1,36 @@
-from flask import Flask
+from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
-from os import path
+from os import path, getenv
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
+from flask_migrate import Migrate
+import json
+
+app_config = None
+
+with open('config.json', 'r') as config_file:
+    app_config = json.load(config_file)
 
 db = SQLAlchemy()
-DB_NAME = "database.db"
+migrate = Migrate()
 
-
-def create_app():
+def create_app(env='development'):
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+    csrf = CSRFProtect(app)
+    app.config['SECRET_KEY'] = getenv('SECRET_KEY', app_config[env]['SECRET_KEY'])
+    app.config['SQLALCHEMY_DATABASE_URI'] = getenv('DATABASE_URI', app_config[env]['DATABASE_URI'])
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Turn off tracking modifications
     db.init_app(app)
+    migrate.init_app(app, db)
 
+    # Import models here to avoid circular import
+    from .models import GPU, Price, Users, Subscriptions
     from .views import views
     from .auth import auth
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
-    from .models import User, Note
-    
     with app.app_context():
         db.create_all()
 
@@ -30,12 +40,8 @@ def create_app():
 
     @login_manager.user_loader
     def load_user(id):
-        return User.query.get(int(id))
+        return Users.query.get(int(id))
+    
+    
 
     return app
-
-
-def create_database(app):
-    if not path.exists('website/' + DB_NAME):
-        db.create_all(app=app)
-        print('Created Database!')

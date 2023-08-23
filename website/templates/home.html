@@ -1,21 +1,40 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
-%}
-<h1 align="center">Notes</h1>
-<ul class="list-group list-group-flush" id="notes">
-  {% for note in user.notes %}
-  <li class="list-group-item">
-    {{ note.data }}
-    <button type="button" class="close" onClick="deleteNote({{ note.id }})">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </li>
-  {% endfor %}
+{% extends "base.html" %} 
+{% block title %}Home{% endblock %} 
+
+{% block content %}
+<h1>Welcome to Your Dashboard</h1>
+
+<h2>Your Subscriptions</h2>
+<ul>
+    {% for subscription in subscriptions %}
+    <li>
+        Model: {{ subscription.gpu_model }}<br>
+        Price: {{ subscription.latest_price }}<br>
+        Desired Price: {{ subscription.desired_price }}
+        <form class="subscription-form" method="post" action="/cancel_subscription">
+            {{ subscription_form.csrf_token }}
+            <input type="hidden" name="subscription-id" value="{{ subscription.id }}">
+            <button type="submit" class="cancel-button">Cancel</button>
+        </form>
+    </li>
+    {% endfor %}
 </ul>
-<form method="POST">
-  <textarea name="note" id="note" class="form-control"></textarea>
-  <br />
-  <div align="center">
-    <button type="submit" class="btn btn-primary">Add Note</button>
-  </div>
-</form>
+
+<h2>Potential Subscriptions</h2>
+<ul>
+    {% for gpu in gpus %}
+    <li>
+        Model: {{ gpu.model }} | Price: {{ gpu.price[-1].price if gpu.price else 'N/A' }}<br>
+        {% if current_user.is_authenticated %}
+        <form class="subscription-form" method="post" action="/subscribe">
+            {{ subscription_form.csrf_token }}
+            <label for="{{ subscription_form.desired_price.id }}">{{ subscription_form.desired_price.label }}</label>
+            <input type="number" name="desired-price" required> <!-- Add the name attribute -->
+            <input type="hidden" name="gpu-id" value="{{ gpu.id }}">
+            <button type="submit" class="subscribe-button">Subscribe</button>
+        </form>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
 {% endblock %}
