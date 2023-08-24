@@ -8,3 +8,4 @@ scrape_tools/__pycache__
 urls.txt
 config.json
 .env
+migrations
