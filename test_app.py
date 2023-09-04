@@ -6,8 +6,8 @@ from urllib.parse import urlparse
 import os
 from dotenv import load_dotenv
 
-TEST_EMAIL = os.getenv('TEST_EMAIL')
-TEST_PASSWORD = os.getenv('TEST_PASSWORD')
+TEST_EMAIL = "test@example.com"
+TEST_PASSWORD = "testpassword"
 
 @pytest.fixture
 def app():
