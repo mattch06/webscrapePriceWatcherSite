@@ -13,5 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Set Environment Variables
+      env:
+        TEST_DB_URI: ${{ secrets.TEST_DB_URI }}
+        TEST_DB: ${{ secrets.TEST_DB }}
+        TEST_POSTGRES_USER: ${{ secrets.TEST_POSTGRES_USER }}
+        TEST_POSTGRES_USER_PW: ${{ secrets.TEST_POSTGRES_USER_PW }}
+      run: |
+        echo "TEST_DB_URI=${TEST_DB_URI}" >> $GITHUB_ENV
+        echo "TEST_DB=${TEST_DB}" >> $GITHUB_ENV
+        echo "TEST_POSTGRES_USER=${TEST_POSTGRES_USER}" >> $GITHUB_ENV
+        echo "TEST_POSTGRES_USER_PW=${TEST_POSTGRES_USER_PW}" >> $GITHUB_ENV
+
     - name: Run pytest within Docker container
       run: docker-compose -f docker-compose.testing.yml up --abort-on-container-exit
