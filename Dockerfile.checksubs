@@ -1,0 +1,23 @@
+# Use the same base image as the webscraper service
+FROM python:3.10-slim
+
+# Set the working directory to the appropriate directory
+WORKDIR /app
+
+# Copy the necessary files for the checksubs into the container 
+COPY checkSubs.py /app
+COPY .env /app
+COPY requirements.txt /app   
+COPY config.json /app
+COPY website/ /app/website/ 
+COPY entrypoint.sh /app/entrypoint.sh
+
+
+# Install any dependencies for the checksubs
+RUN pip install -r requirements.txt
+
+RUN apt-get update && apt-get install -y netcat-traditional
+
+# Set the entry point script
+ENTRYPOINT ["sh", "/app/entrypoint.sh", "python", "checkSubs.py"]
+

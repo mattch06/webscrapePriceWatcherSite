@@ -1,0 +1,43 @@
+name: Build and Deploy
+
+on:
+  workflow_run:
+    workflows: ["pytest"]
+    types:
+      - completed
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set version
+      id: version
+      run: echo "::set-output name=version::${{ secrets.DOCKER_VERSION }}"
+
+    - name: Build Docker images and push to AWS ECR
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        DOCKER_VERSION: ${{ steps.version.outputs.version }}
+      
+      run: |
+        aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_URL }}
+
+        # Build the Docker image for flask-app
+        docker build -t ${{ secrets.AWS_ECR_URL }}/${{ secrets.PROJECT_NAME }}/flask-app:${{ env.DOCKER_VERSION }} -f Dockerfile .
+
+        # Build the Docker image for webscraper
+        docker build -t ${{ secrets.AWS_ECR_URL }}/${{ secrets.PROJECT_NAME }}/webscraper:${{ env.DOCKER_VERSION }} -f Dockerfile.webscraper .
+
+        # Build the Docker image for checksubs
+        docker build -t ${{ secrets.AWS_ECR_URL }}/${{ secrets.PROJECT_NAME }}/checksubs:${{ env.DOCKER_VERSION }} -f Dockerfile.checksubs .
+
+        # Push the images to ECR
+        docker push ${{ secrets.AWS_ECR_URL }}/${{ secrets.PROJECT_NAME }}/flask-app:${{ env.DOCKER_VERSION }}
+        docker push ${{ secrets.AWS_ECR_URL }}/${{ secrets.PROJECT_NAME }}/webscraper:${{ env.DOCKER_VERSION }}
+        docker push ${{ secrets.AWS_ECR_URL }}/${{ secrets.PROJECT_NAME }}/checksubs:${{ env.DOCKER_VERSION }}
+          

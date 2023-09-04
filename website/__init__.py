@@ -5,6 +5,11 @@ from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 from flask_migrate import Migrate
 import json
+import time
+from sqlalchemy.exc import OperationalError
+from sqlalchemy import text
+
+
 
 app_config = None
 
@@ -31,8 +36,31 @@ def create_app(env='development'):
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
-    with app.app_context():
-        db.create_all()
+    max_retries = 10  # You can adjust this number as needed
+    retries = 0
+
+    while retries < max_retries:
+        try:
+            with app.app_context():
+                # Directly query the information schema to check for table existence
+                query = text("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'gpu')")
+                result = db.session.execute(query)
+                table_exists = result.scalar()
+
+                if not table_exists:
+                    print("Database tables not found. Initializing...")
+                    db.create_all()
+                else:
+                    print("Database tables already exist.")
+
+            break  # Break out of the loop if database setup succeeds
+        except OperationalError:
+            print(f"Database connection failed. Retrying in 5 seconds ({retries}/{max_retries})")
+            time.sleep(5)
+            retries += 1
+    else:
+        print("Failed to establish database connection after multiple retries. Exiting.")
+        return None  # Return None to indicate failure
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
@@ -42,6 +70,4 @@ def create_app(env='development'):
     def load_user(id):
         return Users.query.get(int(id))
     
-    
-
     return app

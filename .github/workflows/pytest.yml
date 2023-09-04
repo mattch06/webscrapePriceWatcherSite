@@ -1,0 +1,17 @@
+name: Run pytest
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run pytest within Docker container
+      run: docker-compose -f docker-compose.testing.yml up --abort-on-container-exit

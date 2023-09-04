@@ -1,12 +1,7 @@
 import os
-import sys
-import time
-import threading
 import scrape_tools.webscrape as webscrape
 import json
-
-# Add the path to the root directory to sys.path
-sys.path.append(os.path.abspath('.'))
+import time
 
 def read_urls_from_file(file_path):
     with open(file_path, 'r') as file:
@@ -27,5 +22,4 @@ def run_webscrape():
     time.sleep(86400)  # 1 day
 
 if __name__ == "__main__":
-    thread = threading.Thread(target=run_webscrape)
-    thread.start()
+    run_webscrape()

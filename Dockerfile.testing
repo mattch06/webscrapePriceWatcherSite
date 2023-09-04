@@ -1,0 +1,14 @@
+# Use a base image with Python and any dependencies you need for testing
+FROM python:3.10
+
+# Set the working directory
+WORKDIR /app
+
+# Copy your project files into the container
+COPY . /app
+
+# Install any dependencies needed for testing (e.g., pytest)
+RUN pip install -r requirements.txt
+
+# Define an entry point that runs the pytest command
+CMD ["pytest", "test_app.py"]

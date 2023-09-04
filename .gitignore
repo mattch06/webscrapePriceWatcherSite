@@ -6,6 +6,6 @@ __pycache__
 instance
 scrape_tools/__pycache__
 urls.txt
-config.json
 .env
 migrations
+config_orig_copy.json

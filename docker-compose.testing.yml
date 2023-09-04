@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  flask-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.testing
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: testing
+      DATABASE_URI: ${{ secrets.TEST_DB_URI }}
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${{ secrets.TEST_DB }}
+      POSTGRES_USER: ${{ secrets.TEST_POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_USER_PW }}
+    ports:
+      - "5432:5432"

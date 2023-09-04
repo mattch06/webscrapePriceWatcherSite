@@ -3,6 +3,11 @@ from website.models import Users
 import pytest
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+import os
+from dotenv import load_dotenv
+
+TEST_EMAIL = os.getenv('TEST_EMAIL')
+TEST_PASSWORD = os.getenv('TEST_PASSWORD')
 
 @pytest.fixture
 def app():
@@ -20,7 +25,7 @@ def app():
 def auth(client):
     with client.application.app_context():
         # Create a test user and simulate their authentication
-        test_user = Users(email='test@example.com', password='testpassword')
+        test_user = Users(email=TEST_EMAIL, password=TEST_PASSWORD)
         db.session.add(test_user)
         db.session.commit()
 
@@ -35,15 +40,15 @@ def test_new_user(client):
     response = client.post(
         "/sign-up",
         data={
-            "email": "test@example.com",
-            "password1": "testpassword",
-            "password2": "testpassword",
+            "email": TEST_EMAIL,
+            "password1": TEST_PASSWORD,
+            "password2": TEST_PASSWORD,
         },
         follow_redirects=True,
     )
     assert response.status_code == 200
 
-    user = Users.query.filter_by(email="test@example.com").first()
+    user = Users.query.filter_by(email=TEST_EMAIL).first()
     assert user is not None
 
 def test_home_route(client, auth):
@@ -64,7 +69,7 @@ def test_home_route(client, auth):
         print("Redirect URL:", response.location)
 
         assert authenticated_user is not None
-        assert authenticated_user.email == 'test@example.com'
+        assert authenticated_user.email == TEST_EMAIL
         
         # Assert that the response is a redirect to the login page
         assert response.status_code == 200

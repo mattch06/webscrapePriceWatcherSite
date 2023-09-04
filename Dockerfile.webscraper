@@ -1,0 +1,24 @@
+# Use the same base image as the webscraper service
+FROM python:3.10-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the necessary files for the webscraper into the container
+COPY scrape_tools/ /app/scrape_tools/
+COPY website/ /app/website/   
+COPY run_webscrape.py /app  
+COPY requirements.txt /app
+COPY config.json /app
+COPY urls.txt /app
+COPY entrypoint.sh /app/entrypoint.sh
+
+
+# Install any dependencies for the webscraper
+RUN pip install -r requirements.txt
+
+RUN apt-get update && apt-get install -y netcat-traditional
+
+
+# Set the entry point script
+ENTRYPOINT ["sh", "/app/entrypoint.sh", "python", "run_webscrape.py"]
