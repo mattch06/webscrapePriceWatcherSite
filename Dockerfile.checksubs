@@ -6,7 +6,6 @@ WORKDIR /app
 
 # Copy the necessary files for the checksubs into the container 
 COPY checkSubs.py /app
-COPY .env /app
 COPY requirements.txt /app   
 COPY config.json /app
 COPY website/ /app/website/ 
