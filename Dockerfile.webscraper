@@ -10,7 +10,6 @@ COPY website/ /app/website/
 COPY run_webscrape.py /app  
 COPY requirements.txt /app
 COPY config.json /app
-COPY urls.txt /app
 COPY entrypoint.sh /app/entrypoint.sh
 
 
