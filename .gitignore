@@ -10,3 +10,4 @@ urls.txt
 migrations
 config_orig_copy.json
 OLDrequirements.txt
+docker-compose.yml

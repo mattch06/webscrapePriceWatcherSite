@@ -4,6 +4,8 @@ import json
 import time
 import boto3
 
+BUCKET=os.environ.get('BUCKET')
+
 def read_urls_from_s3(bucket_name, file_name):
     s3 = boto3.client('s3')
     try:
@@ -22,7 +24,7 @@ def run_webscrape():
         config = json.load(config_file)
 
     db_uri = config[env]['DATABASE_URI']
-    bucket_name = 'mattch06-webscraping-data'
+    bucket_name = BUCKET
     file_name = 'urls.txt'
     
     urls = read_urls_from_s3(bucket_name, file_name)
