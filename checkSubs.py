@@ -31,7 +31,7 @@ def main():
         print("Starting checkSubs.py script loop")
 
         # Load database URI from config.json
-        config_path = 'config.json'  # Adjust the path to reach the config.json file
+        config_path = 'config.json'  # Adjust path to reach the config.json file
         env = os.environ.get('FLASK_ENV', 'development')
 
         with open(config_path, 'r') as config_file:

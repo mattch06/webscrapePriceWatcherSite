@@ -49,3 +49,4 @@ SENDER_PASSWORD=yourapppasswrd
 
 "
 -it will check the price of a model vs your desired price. if <= it will send an email then sleep 24hr and send again if price <= desired price. 
+...
